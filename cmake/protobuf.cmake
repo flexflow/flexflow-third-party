@@ -1,0 +1,23 @@
+set(PROTOBUF_NAME protobuf)
+set(PROTOBUF_AUTOGEN_NAME protobuf_autogen)
+
+# hack: PROTOBUF_AUTOGEN_NAME is a pseudo project only for autogen as it has to be run in source dir (BUILD_IN_SOURCE 1)
+message(STATUS "Building ${PROTOBUF_NAME}")
+ExternalProject_Add(${PROTOBUF_AUTOGEN_NAME}
+ SOURCE_DIR ${PROJECT_SOURCE_DIR}/protobuf
+ PREFIX ${PROTOBUF_AUTOGEN_NAME}
+ CONFIGURE_COMMAND <SOURCE_DIR>/autogen.sh
+ BUILD_COMMAND echo "pseudo make"
+ INSTALL_COMMAND echo "pseudo make install"
+ BUILD_IN_SOURCE 1
+)
+ExternalProject_Add(${PROTOBUF_NAME}
+ SOURCE_DIR ${PROJECT_SOURCE_DIR}/protobuf
+ PREFIX ${PROTOBUF_NAME}
+ INSTALL_DIR ${PROTOBUF_NAME}/install
+ CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> "CC=${CMAKE_C_COMPILER}" "CXX=${CMAKE_CXX_COMPILER}"
+)
+add_dependencies(${PROTOBUF_NAME} ${PROTOBUF_AUTOGEN_NAME})
+  
+ExternalProject_get_property(${PROTOBUF_NAME} INSTALL_DIR)
+install(DIRECTORY ${INSTALL_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX} USE_SOURCE_PERMISSIONS)
