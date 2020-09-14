@@ -1,6 +1,10 @@
-#include(utils)
-#detect_installed_gpus(COMPUTE_CAPABILITY)
-#message(${COMPUTE_CAPABILITY})
+if(CUDA_ARCH)
+  set(LEGION_CUDA_ARCH ${CUDA_ARCH})
+else()
+  include(utils)
+  detect_installed_gpus(LEGION_CUDA_ARCH)
+  message( STATUS "Detected CUDA_ARCH : ${LEGION_CUDA_ARCH}" )
+endif()
 
 set(LEGION_NAME legion)
 
@@ -35,7 +39,7 @@ ExternalProject_Add(${LEGION_NAME}
    -DLegion_MAX_DIM=4
    -DLegion_BUILD_EXAMPLES=OFF
    -DLegion_BUILD_APPS=OFF
-   -DLegion_CUDA_ARCH=60
+   -DLegion_CUDA_ARCH=${LEGION_CUDA_ARCH}
    -DLegion_USE_Python=${LEGION_USE_PYTHON}
    -DLegion_Python_Version=3.6
    <SOURCE_DIR>
