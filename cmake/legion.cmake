@@ -1,9 +1,9 @@
-if(CUDA_ARCH)
-  set(LEGION_CUDA_ARCH ${CUDA_ARCH})
-else()
+if("${CUDA_ARCH}" STREQUAL "")
   include(utils)
   detect_installed_gpus(LEGION_CUDA_ARCH)
   message( STATUS "Detected CUDA_ARCH : ${LEGION_CUDA_ARCH}" )
+else()
+  set(LEGION_CUDA_ARCH ${CUDA_ARCH})
 endif()
 
 set(LEGION_NAME legion)
