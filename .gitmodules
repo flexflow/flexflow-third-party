@@ -1,6 +1,6 @@
 [submodule "legion"]
 	path = legion
-	url = https://github.com/StanfordLegion/legion.git
+	url = https://gitlab.com/StanfordLegion/legion.git
 [submodule "protobuf"]
 	path = protobuf
 	url = https://github.com/protocolbuffers/protobuf.git
