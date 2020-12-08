@@ -23,6 +23,8 @@ cmake_dependent_option(ENABLE_GASNET "Build gasnet" ${ENABLE_GASNET_DEFAULT}
 set(GASNet_CONDUITS udp mpi ibv psm)
 set(GASNet_CONDUIT "mpi" CACHE STRING "Select Gasnet conduit ${GASNet_CONDUITS}")
 set(CUDA_ARCH "" CACHE STRING "Target CUDA Arch")
+set(MAX_DIM "4" CACHE STRING "Max DIM")
+set(PYTHON_VERSION "" CACHE STRING "Python Version")
 set_property(CACHE GASNet_CONDUIT PROPERTY STRINGS ${GASNet_CONDUITS})
 
 #build the libraries

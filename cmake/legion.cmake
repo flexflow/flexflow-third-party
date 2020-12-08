@@ -13,8 +13,10 @@ find_package(MPI REQUIRED)
 ExternalProject_get_property(${GASNET_NAME} INSTALL_DIR)
 set(GASNET_INSTALL_DIR ${INSTALL_DIR})
 
-# TODO fix python version
+# TODO default python version
 message(STATUS "Building ${LEGION_NAME}")
+message(STATUS "Max DIM: ${MAX_DIM}")
+message(STATUS "Python Version: ${PYTHON_VERSION}")
 ExternalProject_Add(${LEGION_NAME}
  DEPENDS ${GASNET_NAME}
  SOURCE_DIR ${PROJECT_SOURCE_DIR}/legion
@@ -36,12 +38,13 @@ ExternalProject_Add(${LEGION_NAME}
    ${Legion_GASNet_OPTS}
    -DLegion_USE_GASNet=${ENABLE_GASNET}
    -DLegion_USE_CUDA=ON
-   -DLegion_MAX_DIM=4
+   -DLegion_GPU_REDUCTIONS=OFF
+   -DLegion_MAX_DIM=${MAX_DIM}
    -DLegion_BUILD_EXAMPLES=OFF
    -DLegion_BUILD_APPS=OFF
    -DLegion_CUDA_ARCH=${LEGION_CUDA_ARCH}
    -DLegion_USE_Python=${LEGION_USE_PYTHON}
-   -DLegion_Python_Version=3.6
+   -DLegion_Python_Version=${PYTHON_VERSION}
    <SOURCE_DIR>
 )
 
