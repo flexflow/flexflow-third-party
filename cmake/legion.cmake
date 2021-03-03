@@ -1,10 +1,10 @@
-if("${CUDA_ARCH}" STREQUAL "")
-  include(utils)
-  detect_installed_gpus(LEGION_CUDA_ARCH)
-  message( STATUS "Detected CUDA_ARCH : ${LEGION_CUDA_ARCH}" )
-else()
-  set(LEGION_CUDA_ARCH ${CUDA_ARCH})
-endif()
+# if("${CUDA_ARCH}" STREQUAL "")
+#   include(utils)
+#   detect_installed_gpus(LEGION_CUDA_ARCH)
+#   message( STATUS "Detected CUDA_ARCH : ${LEGION_CUDA_ARCH}" )
+# else()
+#   set(LEGION_CUDA_ARCH ${CUDA_ARCH})
+# endif()
 
 set(LEGION_NAME legion)
 
@@ -42,7 +42,7 @@ ExternalProject_Add(${LEGION_NAME}
    -DLegion_MAX_DIM=${MAX_DIM}
    -DLegion_BUILD_EXAMPLES=OFF
    -DLegion_BUILD_APPS=OFF
-   -DLegion_CUDA_ARCH=${LEGION_CUDA_ARCH}
+   -DLegion_CUDA_ARCH=${CUDA_ARCH}
    -DLegion_USE_Python=${LEGION_USE_PYTHON}
    -DLegion_Python_Version=${PYTHON_VERSION}
    <SOURCE_DIR>
