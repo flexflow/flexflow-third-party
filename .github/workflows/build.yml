@@ -66,15 +66,16 @@ jobs:
           name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
           path: build/deps/${{ matrix.dependency }}
 
-  # create-release:
-  #   name: Create new release
-  #   runs-on: ubuntu-20.04
-  #   needs:
-  #     build-dependencies
-  #   steps:
-  #     - name:
-  #       uses: ncipollo/release-action@v1
-  #       with:
-  #         artifacts: "*"
-  #         bodyFile: "body.md"
-  #         token: ${{ secrets.YOUR_GITHUB_TOKEN }}
+  create-release:
+    name: Create new release
+    runs-on: ubuntu-20.04
+    needs: build-dependencies
+    steps:
+      - name: Get datetime
+        run: echo "RELEASE_DATETIME=$(date --iso-8601=minutes)" >> $GITHUB_ENV
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: ${{ env.RELEASE_DATETIME }}
+          artifacts: "*"
+          token: ${{ secrets.RELEASES_TOKEN }}
