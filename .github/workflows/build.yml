@@ -78,5 +78,5 @@ jobs:
         with:
           name: ${{ env.RELEASE_DATETIME }}
           tag: ${{ env.RELEASE_DATETIME }}
-          artifacts: "*"
+          artifacts: "*_ubuntu-20.04"
           token: ${{ secrets.RELEASES_TOKEN }}
