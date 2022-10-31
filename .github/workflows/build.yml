@@ -77,5 +77,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           name: ${{ env.RELEASE_DATETIME }}
+          tag: ${{ env.RELEASE_DATETIME }}
           artifacts: "*"
           token: ${{ secrets.RELEASES_TOKEN }}
