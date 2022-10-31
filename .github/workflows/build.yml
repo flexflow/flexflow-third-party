@@ -71,6 +71,15 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build-dependencies
     steps:
+      - name: Create folder for artifacts
+        run: mkdir artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+      - name: Display structure of downloaded files
+        working-directory: ./artifacts
+        run: ls -R
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
       - name: Create Release
@@ -78,5 +87,5 @@ jobs:
         with:
           name: ${{ env.RELEASE_DATETIME }}
           tag: ${{ env.RELEASE_DATETIME }}
-          artifacts: "*_ubuntu-20.04"
+          artifacts: "artifacts/*_ubuntu-20.04"
           token: ${{ secrets.RELEASES_TOKEN }}
