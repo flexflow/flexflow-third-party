@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-dependencies:
-    name: Build the dependencies
+    name: Build the FlexFlow dependencies
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda_version }}
 
-      - name: Install FlexFlow Dependencies
+      - name: Install Build Dependencies
         run: .github/workflows/helpers/install_dependencies.sh
 
       - name: Build NCCL/Legion
