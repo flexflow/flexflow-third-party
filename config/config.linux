@@ -31,7 +31,10 @@ CUDA_DIR=/usr/local/cuda
 FF_USE_PYTHON=ON
 
 # enable NCCL
-FF_USE_NCCL=ON
+FF_USE_NCCL=OFF
+
+# enable Legion
+FF_BUILD_LEGION=OFF
 
 # enable GASNet
 FF_USE_GASNET=OFF

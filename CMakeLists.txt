@@ -50,6 +50,9 @@ set(FF_CUDA_ARCH "" CACHE STRING "Target CUDA Arch")
 # option for nccl
 option(FF_USE_NCCL "Run FlexFlow with NCCL" OFF)
 
+# option for Legion
+option(FF_BUILD_LEGION "Build Legion" OFF)
+
 # option for avx2
 option(FF_USE_AVX2 "Run FlexFlow with AVX2" OFF)
 
@@ -97,20 +100,22 @@ if(FF_USE_NCCL)
 endif()
 
 # Legion
-include(legion)
-
-# json
-include(json)
-
-# variant
-include(variant)
-
-# optional
-include(optional)
-
-# Python
-if(FF_USE_PYTHON)
-  add_subdirectory(deps/pybind11)
+if(FF_BUILD_LEGION)
+  include(legion)
 endif()
+
+# # # json
+# # include(json)
+
+# # # variant
+# # include(variant)
+
+# # # optional
+# # include(optional)
+
+# # Python
+# if(FF_USE_PYTHON)
+#   add_subdirectory(deps/pybind11)
+# endif()
 
 

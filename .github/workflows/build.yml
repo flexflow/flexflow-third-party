@@ -14,7 +14,9 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        cuda_version: ["8.0.61", "9.2.148", "10.0.130", "10.1.243", "10.2.89", "11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
+        cuda_version: ["11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
+        #cuda_version: ["8.0.61", "9.2.148", "10.0.130", "10.1.243", "10.2.89", "11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
+        dependency: ["nccl", "legion"]
       fail-fast: false
     steps:
       - name: Checkout Git Repository
@@ -31,7 +33,9 @@ jobs:
       - name: Install FlexFlow Dependencies
         run: .github/workflows/helpers/install_dependencies.sh
 
-      - name: Build FlexFlow
+      - name: Build NCCL/Legion
+        env:
+          DEPENDENCY: ${{ matrix.dependency }}
         run: |
           export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
@@ -39,7 +43,8 @@ jobs:
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
           sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=70" ./config/config.linux
-          sed -i "/FF_BUILD_UNIT_TESTS/c\FF_BUILD_UNIT_TESTS=ON" ./config/config.linux
+          if [ "$DEPENDENCY" == "legion" ] ; then sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux ; fi
+          if [ "$DEPENDENCY" == "nccl" ] ; then sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux ; fi
           mkdir build
           cd build
           ../config/config.linux

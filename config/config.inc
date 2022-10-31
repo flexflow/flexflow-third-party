@@ -67,6 +67,15 @@ else
   SET_NCCL="-DFF_USE_NCCL=ON"
 fi
 
+# enable build of Legion
+if [ "$FF_BUILD_LEGION" = "ON" ]; then
+  SET_LEGION="-DFF_BUILD_LEGION=ON"
+elif [ "$FF_BUILD_LEGION" = "OFF" ]; then
+  SET_LEGION="-DFF_BUILD_LEGION=OFF"
+else
+  SET_LEGION="-DFF_BUILD_LEGION=ON"
+fi
+
 # enable GASNET
 if [ "$FF_USE_GASNET" = "ON" ]; then
   SET_GASNET="-DFF_USE_GASNET=ON"
