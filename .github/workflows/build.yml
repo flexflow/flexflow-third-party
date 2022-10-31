@@ -2,7 +2,7 @@ name: "build"
 on:
   schedule:
     # Run daily at midnight ET (4am UTC)
-    - cron: '0 4 * * *'
+    - cron: "0 4 * * *"
   workflow_dispatch:
   pull_request:
 concurrency:
@@ -14,7 +14,17 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        cuda_version: ["11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
+        cuda_version:
+          [
+            "11.0.3",
+            "11.1.1",
+            "11.2.2",
+            "11.3.1",
+            "11.4.3",
+            "11.5.2",
+            "11.6.2",
+            "11.7.0",
+          ]
         #cuda_version: ["8.0.61", "9.2.148", "10.0.130", "10.1.243", "10.2.89", "11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
         dependency: ["nccl", "legion"]
       fail-fast: false
@@ -49,3 +59,22 @@ jobs:
           cd build
           ../config/config.linux
           make -j $n_build_cores
+
+      - name: Archive compiled libraries / files / binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
+          path: build/deps/${{ matrix.dependency }}
+
+  # create-release:
+  #   name: Create new release
+  #   runs-on: ubuntu-20.04
+  #   needs:
+  #     build-dependencies
+  #   steps:
+  #     - name:
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: "*"
+  #         bodyFile: "body.md"
+  #         token: ${{ secrets.YOUR_GITHUB_TOKEN }}
