@@ -72,7 +72,7 @@ jobs:
     needs: build-dependencies
     steps:
       - name: Create folder for artifacts
-        run: mkdir artifacts
+        run: mkdir artifacts compressed_artifacts
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -80,12 +80,15 @@ jobs:
       - name: Display structure of downloaded files
         working-directory: ./artifacts
         run: ls -R
+      - name: Compress all artifacts
+        working-directory: ./artifacts
+        run: find . -maxdepth 1 -mindepth 1 -type d -exec tar zcvf ../compressed_artifacts/{}.tar.gz {}  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
-      - name: Create Release
-        uses: ncipollo/release-action@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
           name: ${{ env.RELEASE_DATETIME }}
-          tag: ${{ env.RELEASE_DATETIME }}
-          artifacts: "artifacts/*_ubuntu-20.04"
+          tag_name: ${{ env.RELEASE_DATETIME }}
           token: ${{ secrets.RELEASES_TOKEN }}
+          files: ./compressed_artifacts/*.tar.gz
