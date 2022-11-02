@@ -59,12 +59,22 @@ jobs:
           cd build
           ../config/config.linux
           make -j $n_build_cores
+          ../config/config.linux
+          make install
 
-      - name: Archive compiled libraries / files / binaries
+      - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
+        if: ${{ matrix.dependency }} == 'nccl'
         with:
           name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
-          path: build/deps/${{ matrix.dependency }}
+          path: build/deps/nccl
+
+      - name: Archive compiled Legion library
+        uses: actions/upload-artifact@v3
+        if: ${{ matrix.dependency }} == 'legion'
+        with:
+          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
+          path: build/export/legion
 
   create-release:
     name: Create new release
