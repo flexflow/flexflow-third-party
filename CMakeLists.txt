@@ -104,14 +104,14 @@ if(FF_BUILD_LEGION)
   include(legion)
 endif()
 
-# json
-include(json)
+# # json
+# include(json)
 
-# variant
-include(variant)
+# # variant
+# include(variant)
 
-# optional
-include(optional)
+# # optional
+# include(optional)
 
 # # Python
 # if(FF_USE_PYTHON)
@@ -126,7 +126,8 @@ else()
 endif()
 
 target_include_directories(flexflow PUBLIC ${FLEXFLOW_INCLUDE_DIRS})
-target_link_libraries(flexflow ${LEGION_LIBRARY} nlohmann_json::nlohmann_json mpark_variant optional)
+#target_link_libraries(flexflow ${LEGION_LIBRARY} nlohmann_json::nlohmann_json mpark_variant optional)
+target_link_libraries(flexflow ${LEGION_LIBRARY})
 
 if(FF_USE_NCCL)
   add_dependencies(flexflow ${NCCL_NAME})
