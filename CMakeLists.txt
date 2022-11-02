@@ -120,9 +120,9 @@ include(optional)
 
 # compile flexflow lib
 if(BUILD_SHARED_LIBS)
-  cuda_add_library(flexflow SHARED)
+  cuda_add_library(flexflow SHARED placeholder.cpp)
 else()
-  cuda_add_library(flexflow STATIC)
+  cuda_add_library(flexflow STATIC placeholder.cpp)
 endif()
 
 target_include_directories(flexflow PUBLIC ${FLEXFLOW_INCLUDE_DIRS})
