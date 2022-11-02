@@ -55,10 +55,8 @@ jobs:
           sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=70" ./config/config.linux
           if [[ "$DEPENDENCY" == "legion" ]]; then
             sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
-            echo "ARTIFACT_PATH=$(pwd)/build/export/legion" >> $GITHUB_ENV
           else
             sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
-            echo "ARTIFACT_PATH=$(pwd)/build/deps/nccl" >> $GITHUB_ENV
           fi
           mkdir build
           cd build
@@ -67,11 +65,19 @@ jobs:
           ../config/config.linux
           make install
 
-      - name: Archive compiled NCCL/Legion library
+      - name: Archive compiled Legion library (if needed)
         uses: actions/upload-artifact@v3
         with:
           name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
-          path: ${ARTIFACT_PATH}
+          path: build/export/legion
+          if-no-files-found: ignore
+
+      - name: Archive compiled NCCL library (if needed)
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
+          path: build/deps/nccl
+          if-no-files-found: ignore
 
   create-release:
     name: Create new release
