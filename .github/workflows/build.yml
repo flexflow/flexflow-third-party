@@ -11,9 +11,9 @@ concurrency:
 jobs:
   build-dependencies:
     name: Build the FlexFlow dependencies
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
         cuda_version:
           [
             "11.0.3",
@@ -28,6 +28,7 @@ jobs:
         #cuda_version: ["8.0.61", "9.2.148", "10.0.130", "10.1.243", "10.2.89", "11.0.3", "11.1.1", "11.2.2", "11.3.1", "11.4.3", "11.5.2", "11.6.2", "11.7.0"]
         dependency: ["nccl", "legion"]
       fail-fast: false
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
@@ -39,6 +40,7 @@ jobs:
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda_version }}
+          use-github-cache: 'false'
 
       - name: Install Build Dependencies
         run: .github/workflows/helpers/install_dependencies.sh
@@ -69,14 +71,14 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
+          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_${{ matrix.os }}"
           path: build/export/legion
 
       - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
         if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
+          name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_${{ matrix.os }}"
           path: build/deps/nccl
 
   create-release:
