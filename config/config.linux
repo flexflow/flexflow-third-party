@@ -13,7 +13,7 @@ echo " Defaults for Linux machine"
 #LD_FLAGS=${LD_FLAGS+=""}
 
 #set install dir
-INSTALL_DIR="$(pwd)/export"
+INSTALL_DIR="$(pwd)/export/legion"
 echo "Setting install directory to ${INSTALL_DIR}"
 mkdir -p $INSTALL_DIR
 
