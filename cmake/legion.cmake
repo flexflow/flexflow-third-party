@@ -28,6 +28,8 @@ else()
 	message(STATUS "GASNET ROOT: $ENV{GASNet_ROOT_DIR}")
 	set(Legion_MAX_DIM ${FF_MAX_DIM} CACHE STRING "Maximum number of dimensions")
 	add_definitions(-DMAX_RETURN_SIZE=32768)
+	add_definitions(-DLEGION_MAX_RETURN_SIZE=32768)
+	
 	set(Legion_USE_CUDA ON CACHE BOOL "enable Legion_USE_CUDA")
 	set(Legion_CUDA_ARCH ${FF_CUDA_ARCH} CACHE STRING "Legion CUDA ARCH")
 	add_subdirectory(deps/legion)
