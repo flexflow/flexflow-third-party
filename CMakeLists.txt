@@ -104,18 +104,36 @@ if(FF_BUILD_LEGION)
   include(legion)
 endif()
 
-# # # json
-# # include(json)
+# json
+include(json)
 
-# # # variant
-# # include(variant)
+# variant
+include(variant)
 
-# # # optional
-# # include(optional)
+# optional
+include(optional)
 
 # # Python
 # if(FF_USE_PYTHON)
 #   add_subdirectory(deps/pybind11)
 # endif()
 
+# compile flexflow lib
+if(BUILD_SHARED_LIBS)
+  cuda_add_library(flexflow SHARED)
+else()
+  cuda_add_library(flexflow STATIC)
+endif()
 
+target_include_directories(flexflow PUBLIC ${FLEXFLOW_INCLUDE_DIRS})
+target_link_libraries(flexflow ${LEGION_LIBRARY} nlohmann_json::nlohmann_json mpark_variant optional)
+
+if(FF_USE_NCCL)
+  add_dependencies(flexflow ${NCCL_NAME})
+endif()
+
+
+# installation
+set(INCLUDE_DEST "include")
+set(LIB_DEST "lib")
+install(TARGETS flexflow DESTINATION ${LIB_DEST})
