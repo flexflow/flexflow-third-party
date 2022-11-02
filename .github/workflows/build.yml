@@ -74,7 +74,7 @@ jobs:
         if: ${{ matrix.dependency }} == 'legion'
         with:
           name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_ubuntu-20.04"
-          path: build/export/legion
+          path: build/export
 
   create-release:
     name: Create new release
