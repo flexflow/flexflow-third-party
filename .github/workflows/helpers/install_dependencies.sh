@@ -47,7 +47,7 @@ fi
 wget -c -q $CUDNN_LINK
 if [[ "$cuda_version" == "11.6" || "$cuda_version" == "11.7" ]]; then
     sudo tar -xf $CUDNN_TARBALL_NAME -C ./
-    CUDNN_EXTRACTED_TARBALL_NAME="${CUDNN_TARBALL_NAME::-7}-archive"
+    CUDNN_EXTRACTED_TARBALL_NAME="${CUDNN_TARBALL_NAME::-7}"
     sudo cp -r $CUDNN_EXTRACTED_TARBALL_NAME/include/* /usr/local/include
     sudo cp -r $CUDNN_EXTRACTED_TARBALL_NAME/lib/* /usr/local/lib
     rm -rf $CUDNN_EXTRACTED_TARBALL_NAME
