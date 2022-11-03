@@ -160,14 +160,14 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ nvidia_gencode }}"
+          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ matrix.nvidia_gencode }}"
           path: build/export/legion
 
       - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
         if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ nvidia_gencode }}"
+          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ matrix.nvidia_gencode }}"
           path: build/deps/nccl
 
   notify-slack:
