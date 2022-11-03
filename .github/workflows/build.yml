@@ -28,91 +28,92 @@ jobs:
             "11.7.0",
           ]
         nvidia_gencode:
-          [30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87]
+          #[30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87]
+          [52, 60, 61, 70, 75, 80, 86]
         dependency: ["nccl", "legion"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 30
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 35
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 37
-          - cuda_version: "11.1.1"
-            nvidia_gencode: 30
-          - cuda_version: "11.1.1"
-            nvidia_gencode: 35
-          - cuda_version: "11.1.1"
-            nvidia_gencode: 37
-          - cuda_version: "11.2.2"
-            nvidia_gencode: 30
-          - cuda_version: "11.2.2"
-            nvidia_gencode: 35
-          - cuda_version: "11.2.2"
-            nvidia_gencode: 37
-          - cuda_version: "11.3.1"
-            nvidia_gencode: 30
-          - cuda_version: "11.3.1"
-            nvidia_gencode: 35
-          - cuda_version: "11.3.1"
-            nvidia_gencode: 37
-          - cuda_version: "11.4.3"
-            nvidia_gencode: 30
-          - cuda_version: "11.4.3"
-            nvidia_gencode: 35
-          - cuda_version: "11.4.3"
-            nvidia_gencode: 37
-          - cuda_version: "11.5.2"
-            nvidia_gencode: 30
-          - cuda_version: "11.5.2"
-            nvidia_gencode: 35
-          - cuda_version: "11.5.2"
-            nvidia_gencode: 37
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 30
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 35
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 37
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 30
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 35
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 37
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 50
+          # - cuda_version: "11.0.3"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.0.3"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.0.3"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.1.1"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.1.1"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.1.1"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.2.2"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.2.2"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.2.2"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.3.1"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.3.1"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.3.1"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.4.3"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.4.3"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.4.3"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.5.2"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.5.2"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.5.2"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.6.2"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.6.2"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.6.2"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.7.0"
+          #   nvidia_gencode: 30
+          # - cuda_version: "11.7.0"
+          #   nvidia_gencode: 35
+          # - cuda_version: "11.7.0"
+          #   nvidia_gencode: 37
+          # - cuda_version: "11.6.2"
+          #   nvidia_gencode: 50
           - cuda_version: "11.6.2"
             nvidia_gencode: 52
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 53
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 50
+          # - cuda_version: "11.6.2"
+          #   nvidia_gencode: 53
+          # - cuda_version: "11.7.0"
+          #   nvidia_gencode: 50
           - cuda_version: "11.7.0"
             nvidia_gencode: 52
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 53
+          # - cuda_version: "11.7.0"
+          #   nvidia_gencode: 53
           - cuda_version: "10.1.243"
             nvidia_gencode: 80
           - cuda_version: "10.1.243"
             nvidia_gencode: 86
-          - cuda_version: "10.1.243"
-            nvidia_gencode: 87
+          # - cuda_version: "10.1.243"
+          #   nvidia_gencode: 87
           - cuda_version: "10.2.89"
             nvidia_gencode: 80
           - cuda_version: "10.2.89"
             nvidia_gencode: 86
-          - cuda_version: "10.2.89"
-            nvidia_gencode: 87
+          # - cuda_version: "10.2.89"
+          #   nvidia_gencode: 87
           - cuda_version: "11.0.3"
             nvidia_gencode: 80
           - cuda_version: "11.0.3"
             nvidia_gencode: 86
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 87
+          # - cuda_version: "11.0.3"
+          #   nvidia_gencode: 87
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
