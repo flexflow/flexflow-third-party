@@ -89,6 +89,13 @@ jobs:
           name: "${{ matrix.dependency }}_${{ matrix.cuda_version }}_${{ matrix.os }}"
           path: build/deps/nccl
 
+  notify-slack:
+    name: Notify Slack in case of failure
+    needs: build-dependencies
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    run: |
+      curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Nightly build of FlexFlow dependencies failed! <https://github.com/flexflow/flexflow-third-party/actions/runs/$GITHUB_RUN_ID|(See here).> :x: \"}" https://hooks.slack.com/services/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
+
   create-release:
     name: Create new release
     runs-on: ubuntu-20.04
