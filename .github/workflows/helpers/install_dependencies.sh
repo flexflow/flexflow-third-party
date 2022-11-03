@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+set -x
 
 # General dependencies
 echo "Installing apt dependencies..."
@@ -42,10 +44,14 @@ elif [[ "$cuda_version" == "11.7" ]]; then
     CUDNN_LINK=https://developer.download.nvidia.com/compute/redist/cudnn/v8.5.0/local_installers/11.7/cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
     CUDNN_TARBALL_NAME=cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
 fi
-wget -c -q $CUDNN_LINK && \
-    sudo tar -xzf $CUDNN_TARBALL_NAME -C /usr/local && \
-    rm $CUDNN_TARBALL_NAME && \
-    sudo ldconfig
+wget -c -q $CUDNN_LINK
+if [[ "$cuda_version" == "11.6" || "$cuda_version" == "11.7" ]]; then
+    sudo tar -xf $CUDNN_TARBALL_NAME -C /usr/local
+else
+    sudo tar -xzf $CUDNN_TARBALL_NAME -C /usr/local
+fi
+rm $CUDNN_TARBALL_NAME 
+sudo ldconfig
 
 # Install Miniconda
 echo "Installing Miniconda..."

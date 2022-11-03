@@ -13,7 +13,7 @@ jobs:
     name: Build the FlexFlow dependencies
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-18.04, ubuntu-20.04]
         cuda_version:
           [
             "10.1.243",
@@ -33,18 +33,6 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-          - os: ubuntu-22.04
-            cuda_version: "10.1.243"
-          - os: ubuntu-22.04
-            cuda_version: "10.2.89"
-          - os: ubuntu-22.04
-            cuda_version: "11.0.3"
-          - os: ubuntu-22.04
-            cuda_version: "11.1.1"
-          - os: ubuntu-22.04
-            cuda_version: "11.2.2"
-          - os: ubuntu-22.04
-            cuda_version: "11.3.1"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
