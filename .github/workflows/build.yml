@@ -37,6 +37,14 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-22.04
             cuda_version: "10.2.89"
+          - os: ubuntu-22.04
+            cuda_version: "11.0.3"
+          - os: ubuntu-22.04
+            cuda_version: "11.1.1"
+          - os: ubuntu-22.04
+            cuda_version: "11.2.2"
+          - os: ubuntu-22.04
+            cuda_version: "11.3.1"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
