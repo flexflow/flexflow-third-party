@@ -8,8 +8,7 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends wget binu
 # Install CUDNN
 cuda_version=${1:-11.1.1}
 cuda_version=$(echo "${cuda_version}" | cut -f1,2 -d'.')
-echo "CUDA version: ${cuda_version}"
-echo "Installing CUDNN..."
+echo "Installing CUDNN for CUDA version: ${cuda_version} ..."
 CUDNN_LINK=http://developer.download.nvidia.com/compute/redist/cudnn/v8.0.5/cudnn-11.1-linux-x64-v8.0.5.39.tgz
 CUDNN_TARBALL_NAME=cudnn-11.1-linux-x64-v8.0.5.39.tgz
 if [[ "$cuda_version" == "10.1" ]]; then

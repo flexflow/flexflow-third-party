@@ -61,7 +61,9 @@ jobs:
           use-github-cache: "false"
 
       - name: Install Build Dependencies
-        run: .github/workflows/helpers/install_dependencies.sh
+        env:
+          CUDA_VERSION: ${{ matrix.cuda_version }}
+        run: .github/workflows/helpers/install_dependencies.sh $CUDA_VERSION
 
       - name: Build NCCL/Legion
         env:
