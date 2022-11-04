@@ -134,7 +134,7 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Nightly build of FlexFlow dependencies failed! <https://github.com/flexflow/flexflow-third-party/actions/runs/$GITHUB_RUN_ID|(See here).> :x: \"}" $SLACK_WEBHOOK
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Weekly build of FlexFlow dependencies failed! <https://github.com/flexflow/flexflow-third-party/actions/runs/$GITHUB_RUN_ID|(See here).> :x: \"}" $SLACK_WEBHOOK
 
   create-release:
     name: Create new release
