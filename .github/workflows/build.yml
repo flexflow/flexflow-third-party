@@ -1,10 +1,13 @@
 name: "build"
 on:
   schedule:
-    # Run daily at midnight ET (4am UTC)
-    - cron: "0 4 * * *"
-  workflow_dispatch:
+    # Run weekly on Saturday at midnight PT (3am ET / 8am UTC)
+    - cron: "0 8 * * * 6"
+  push:
+    branches:
+      - "master"
   pull_request:
+  workflow_dispatch:
 concurrency:
   group: build-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -35,7 +38,7 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-      fail-fast: false
+      fail-fast: true
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Git Repository
@@ -66,33 +69,34 @@ jobs:
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
 
-          cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
-          GENCODES_L80_GE50="50 52 53 60 61 62 70 72 75"
-          GENCODES_L80="30 35 37 50 52 53 60 61 62 70 72 75"
-          GENCODES_GE50="50 52 53 60 61 62 70 72 75 80 86 87"
-          GENCODES_GE60="60 61 62 70 72 75 80 86 87"
-          if [[ "$cuda_version" == "10.1" ]]; then
-            GENCODES="$GENCODES_L80"
-          elif [[ "$cuda_version" == "10.2" ]]; then
-            GENCODES="$GENCODES_L80"
-          elif [[ "$cuda_version" == "11.0" ]]; then
-            GENCODES="$GENCODES_L80_GE50"
-          elif [[ "$cuda_version" == "11.1" ]]; then
-            GENCODES="$GENCODES_GE50"
-          elif [[ "$cuda_version" == "11.2" ]]; then
-            GENCODES="$GENCODES_GE50"
-          elif [[ "$cuda_version" == "11.3" ]]; then
-            GENCODES="$GENCODES_GE50"
-          elif [[ "$cuda_version" == "11.4" ]]; then
-            GENCODES="$GENCODES_GE50"
-          elif [[ "$cuda_version" == "11.5" ]]; then
-            GENCODES="$GENCODES_GE50"
-          elif [[ "$cuda_version" == "11.6" ]]; then
-            GENCODES="$GENCODES_GE60"
-          elif [[ "$cuda_version" == "11.7" ]]; then
-            GENCODES="$GENCODES_GE60"
-          fi
-          sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
+          # Let Legion/NCCL autodetect compatible gencodes
+          # cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
+          # GENCODES_L80_GE50="50 52 53 60 61 62 70 72 75"
+          # GENCODES_L80="30 35 37 50 52 53 60 61 62 70 72 75"
+          # GENCODES_GE50="50 52 53 60 61 62 70 72 75 80 86 87"
+          # GENCODES_GE60="60 61 62 70 72 75 80 86 87"
+          # if [[ "$cuda_version" == "10.1" ]]; then
+          #   GENCODES="$GENCODES_L80"
+          # elif [[ "$cuda_version" == "10.2" ]]; then
+          #   GENCODES="$GENCODES_L80"
+          # elif [[ "$cuda_version" == "11.0" ]]; then
+          #   GENCODES="$GENCODES_L80_GE50"
+          # elif [[ "$cuda_version" == "11.1" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.2" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.3" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.4" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.5" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.6" ]]; then
+          #   GENCODES="$GENCODES_GE60"
+          # elif [[ "$cuda_version" == "11.7" ]]; then
+          #   GENCODES="$GENCODES_GE60"
+          # fi
+          # sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
 
           #if [[ "$DEPENDENCY" == "legion" ]]; then
             sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
