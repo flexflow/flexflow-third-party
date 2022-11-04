@@ -35,7 +35,7 @@ fi
 
 # set CUDA Arch
 if [ -n "$FF_CUDA_ARCH" ]; then
-  SET_CUDA_ARCH="-DFF_CUDA_ARCH=${FF_CUDA_ARCH}"
+  SET_CUDA_ARCH="-DFF_CUDA_ARCH=\"${FF_CUDA_ARCH}\""
 fi
 
 # set CUDA dir
