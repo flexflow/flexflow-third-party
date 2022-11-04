@@ -27,93 +27,12 @@ jobs:
             "11.6.2",
             "11.7.0",
           ]
-        nvidia_gencode:
-          #[30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87]
-          [52, 60, 61, 70, 75, 80, 86]
         dependency: ["nccl", "legion"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-          # - cuda_version: "11.0.3"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.0.3"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.0.3"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.1.1"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.1.1"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.1.1"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.2.2"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.2.2"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.2.2"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.3.1"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.3.1"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.3.1"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.4.3"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.4.3"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.4.3"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.5.2"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.5.2"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.5.2"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.6.2"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.6.2"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.6.2"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.7.0"
-          #   nvidia_gencode: 30
-          # - cuda_version: "11.7.0"
-          #   nvidia_gencode: 35
-          # - cuda_version: "11.7.0"
-          #   nvidia_gencode: 37
-          # - cuda_version: "11.6.2"
-          #   nvidia_gencode: 50
-          - cuda_version: "11.6.2"
-            nvidia_gencode: 52
-          # - cuda_version: "11.6.2"
-          #   nvidia_gencode: 53
-          # - cuda_version: "11.7.0"
-          #   nvidia_gencode: 50
-          - cuda_version: "11.7.0"
-            nvidia_gencode: 52
-          # - cuda_version: "11.7.0"
-          #   nvidia_gencode: 53
-          - cuda_version: "10.1.243"
-            nvidia_gencode: 80
-          - cuda_version: "10.1.243"
-            nvidia_gencode: 86
-          # - cuda_version: "10.1.243"
-          #   nvidia_gencode: 87
-          - cuda_version: "10.2.89"
-            nvidia_gencode: 80
-          - cuda_version: "10.2.89"
-            nvidia_gencode: 86
-          # - cuda_version: "10.2.89"
-          #   nvidia_gencode: 87
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 80
-          - cuda_version: "11.0.3"
-            nvidia_gencode: 86
-          # - cuda_version: "11.0.3"
-          #   nvidia_gencode: 87
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -137,14 +56,39 @@ jobs:
       - name: Build NCCL/Legion
         env:
           DEPENDENCY: ${{ matrix.dependency }}
-          GENCODE: ${{ matrix.nvidia_gencode }}
+          CUDA_VERSION: ${{ matrix.cuda_version }}
         run: |
           export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
           export CUDA_DIR=/usr/local/cuda
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
-          sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=$GENCODE" ./config/config.linux
+
+          cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
+          GENCODES=""
+          if [[ "$cuda_version" == "10.1" ]]; then
+            GENCODES="30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75"
+          elif [[ "$cuda_version" == "10.2" ]]; then
+            GENCODES="30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75"
+          elif [[ "$cuda_version" == "11.0" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75"
+          elif [[ "$cuda_version" == "11.1" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.2" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.3" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.4" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.5" ]]; then
+            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.6" ]]; then
+            GENCODES="60, 61, 62, 70, 72, 75, 80, 86, 87"
+          elif [[ "$cuda_version" == "11.7" ]]; then
+            GENCODES="60, 61, 62, 70, 72, 75, 80, 86, 87"
+          fi
+          sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH="$GENCODES"" ./config/config.linux
+
           if [[ "$DEPENDENCY" == "legion" ]]; then
             sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
           else
@@ -161,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ matrix.nvidia_gencode }}"
+          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_"
           path: build/export/legion
 
       - name: Archive compiled NCCL library
