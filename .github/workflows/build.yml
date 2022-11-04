@@ -67,27 +67,30 @@ jobs:
           n_build_cores=$(( cores_available -1 ))
 
           cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
-          GENCODES=""
+          GENCODES_L80_GE50="50 52 53 60 61 62 70 72 75"
+          GENCODES_L80="30 35 37 50 52 53 60 61 62 70 72 75"
+          GENCODES_GE50="50 52 53 60 61 62 70 72 75 80 86 87"
+          GENCODES_GE60="60 61 62 70 72 75 80 86 87"
           if [[ "$cuda_version" == "10.1" ]]; then
-            GENCODES="30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75"
+            GENCODES="$GENCODES_L80"
           elif [[ "$cuda_version" == "10.2" ]]; then
-            GENCODES="30, 35, 37, 50, 52, 53, 60, 61, 62, 70, 72, 75"
+            GENCODES="$GENCODES_L80"
           elif [[ "$cuda_version" == "11.0" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75"
+            GENCODES="$GENCODES_L80_GE50"
           elif [[ "$cuda_version" == "11.1" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE50"
           elif [[ "$cuda_version" == "11.2" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE50"
           elif [[ "$cuda_version" == "11.3" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE50"
           elif [[ "$cuda_version" == "11.4" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE50"
           elif [[ "$cuda_version" == "11.5" ]]; then
-            GENCODES="50, 52, 53, 60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE50"
           elif [[ "$cuda_version" == "11.6" ]]; then
-            GENCODES="60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE60"
           elif [[ "$cuda_version" == "11.7" ]]; then
-            GENCODES="60, 61, 62, 70, 72, 75, 80, 86, 87"
+            GENCODES="$GENCODES_GE60"
           fi
           sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
 
