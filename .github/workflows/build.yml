@@ -2,7 +2,7 @@ name: "build"
 on:
   schedule:
     # Run weekly on Saturday at midnight PT (3am ET / 8am UTC)
-    - cron: "0 8 * * * 6"
+    - cron: "0 8 * * 6"
   push:
     branches:
       - "master"
