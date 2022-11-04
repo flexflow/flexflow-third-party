@@ -87,7 +87,7 @@ jobs:
           elif [[ "$cuda_version" == "11.7" ]]; then
             GENCODES="60, 61, 62, 70, 72, 75, 80, 86, 87"
           fi
-          sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH="$GENCODES"" ./config/config.linux
+          sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
 
           if [[ "$DEPENDENCY" == "legion" ]]; then
             sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
