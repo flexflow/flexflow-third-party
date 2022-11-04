@@ -44,12 +44,6 @@ FF_USE_GASNET=OFF
 # select GASNET conduit
 FF_GASNET_CONDUIT=ibv
 
-# build C++ examples
-FF_BUILD_ALL_EXAMPLES=OFF
-
-# build C++ unit tests
-FF_BUILD_UNIT_TESTS=OFF
-
 # enable avx2
 FF_USE_AVX2=OFF
 

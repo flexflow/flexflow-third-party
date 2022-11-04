@@ -32,6 +32,7 @@ else()
 	
 	set(Legion_USE_CUDA ON CACHE BOOL "enable Legion_USE_CUDA")
 	set(Legion_CUDA_ARCH ${FF_CUDA_ARCH} CACHE STRING "Legion CUDA ARCH")
+	message(STATUS "Legion_CUDA_ARCH: ${Legion_CUDA_ARCH}")
 	add_subdirectory(deps/legion)
 	set(LEGION_LIBRARY Legion)
 endif()
