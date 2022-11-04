@@ -27,7 +27,9 @@ jobs:
             "11.6.2",
             "11.7.0",
           ]
-        dependency: ["nccl", "legion"]
+        # uncomment the line below (and related ones) to build nccl, legion in parallel. Because
+        # git only supports up to 20 jobs in parallel, building in parallel is currently not needed.
+        #dependency: ["nccl", "legion"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
@@ -55,7 +57,7 @@ jobs:
 
       - name: Build NCCL/Legion
         env:
-          DEPENDENCY: ${{ matrix.dependency }}
+          #DEPENDENCY: ${{ matrix.dependency }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
         run: |
           export PATH=/opt/conda/bin:$PATH
@@ -89,11 +91,11 @@ jobs:
           fi
           sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
 
-          if [[ "$DEPENDENCY" == "legion" ]]; then
+          #if [[ "$DEPENDENCY" == "legion" ]]; then
             sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
-          else
+          #else
             sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
-          fi
+          #fi
           mkdir build
           cd build
           ../config/config.linux
@@ -103,16 +105,16 @@ jobs:
 
       - name: Archive compiled Legion library
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.dependency == 'legion' }}
+        #if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_"
+          name: "legion_${{ matrix.os }}_${{ matrix.cuda_version }}"
           path: build/export/legion
 
       - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.dependency == 'nccl' }}
+        #if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: "${{ matrix.dependency }}_${{ matrix.os }}_${{ matrix.cuda_version }}_${{ matrix.nvidia_gencode }}"
+          name: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}"
           path: build/deps/nccl
 
   notify-slack:
