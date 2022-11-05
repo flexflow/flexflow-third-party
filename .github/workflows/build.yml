@@ -131,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v3
         #if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+          name: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}"
           path: build/deps/nccl
 
   notify-slack:
