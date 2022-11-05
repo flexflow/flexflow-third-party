@@ -1,0 +1,179 @@
+name: "build"
+on:
+  schedule:
+    # Run weekly on Saturday at midnight PT (3am ET / 8am UTC)
+    - cron: "0 8 * * 6"
+  push:
+    branches:
+      - "master"
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: build-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  build-dependencies:
+    name: Build the FlexFlow dependencies
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04]
+        cuda_version:
+          [
+            "10.1.243",
+            "10.2.89",
+            "11.0.3",
+            "11.1.1",
+            "11.2.2",
+            "11.3.1",
+            "11.4.3",
+            "11.5.2",
+            "11.6.2",
+            "11.7.0",
+          ]
+        # uncomment the line below (and related ones) to build nccl, legion in parallel. Because
+        # git only supports up to 20 jobs in parallel, building in parallel is currently not needed.
+        #dependency: ["nccl", "legion"]
+        exclude:
+          - os: ubuntu-20.04
+            cuda_version: "10.1.243"
+          - os: ubuntu-20.04
+            cuda_version: "10.2.89"
+      fail-fast: true
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install CUDA
+        uses: Jimver/cuda-toolkit@v0.2.8
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda_version }}
+          use-github-cache: "false"
+
+      - name: Install Build Dependencies
+        env:
+          CUDA_VERSION: ${{ matrix.cuda_version }}
+        run: .github/workflows/helpers/install_dependencies.sh $CUDA_VERSION
+
+      - name: Build NCCL/Legion
+        env:
+          #DEPENDENCY: ${{ matrix.dependency }}
+          CUDA_VERSION: ${{ matrix.cuda_version }}
+        run: |
+          export PATH=/opt/conda/bin:$PATH
+          export CUDNN_DIR=/usr/local/cuda
+          export CUDA_DIR=/usr/local/cuda
+          cores_available=$(nproc --all)
+          n_build_cores=$(( cores_available -1 ))
+
+          # Let Legion/NCCL autodetect compatible gencodes
+          # cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
+          # GENCODES_L80_GE50="50 52 53 60 61 62 70 72 75"
+          # GENCODES_L80="30 35 37 50 52 53 60 61 62 70 72 75"
+          # GENCODES_GE50="50 52 53 60 61 62 70 72 75 80 86 87"
+          # GENCODES_GE60="60 61 62 70 72 75 80 86 87"
+          # if [[ "$cuda_version" == "10.1" ]]; then
+          #   GENCODES="$GENCODES_L80"
+          # elif [[ "$cuda_version" == "10.2" ]]; then
+          #   GENCODES="$GENCODES_L80"
+          # elif [[ "$cuda_version" == "11.0" ]]; then
+          #   GENCODES="$GENCODES_L80_GE50"
+          # elif [[ "$cuda_version" == "11.1" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.2" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.3" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.4" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.5" ]]; then
+          #   GENCODES="$GENCODES_GE50"
+          # elif [[ "$cuda_version" == "11.6" ]]; then
+          #   GENCODES="$GENCODES_GE60"
+          # elif [[ "$cuda_version" == "11.7" ]]; then
+          #   GENCODES="$GENCODES_GE60"
+          # fi
+          # sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
+
+          #if [[ "$DEPENDENCY" == "legion" ]]; then
+            sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
+          #else
+            sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
+          #fi
+          mkdir build
+          cd build
+          ../config/config.linux
+          make -j $n_build_cores
+          ../config/config.linux
+          make install
+
+      - name: Prepare library files
+        env:
+          NCCL_ARCHIVE_NAME: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}"
+          LEGION_ARCHIVE_NAME: "legion_${{ matrix.os }}_${{ matrix.cuda_version }}"
+        run: |
+          rm -rf build/deps/nccl/obj
+          rm -rf build/deps/nccl/src
+          rm -rf build/deps/nccl/tmp
+          rm -f build/deps/nccl/lib/*.so.*
+          tar -czvf $NCCL_ARCHIVE_NAME.tar.gz build/deps/nccl/
+
+          rm -f build/export/legion/lib/libflexflow.so
+          rm -f build/export/legion/lib/*.so.*
+          tar -czvf $LEGION_ARCHIVE_NAME.tar.gz build/export/legion/
+
+      - name: Archive compiled Legion library
+        uses: actions/upload-artifact@v3
+        #if: ${{ matrix.dependency == 'legion' }}
+        with:
+          name: "legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+          path: "legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+
+      - name: Archive compiled NCCL library
+        uses: actions/upload-artifact@v3
+        #if: ${{ matrix.dependency == 'nccl' }}
+        with:
+          name: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+          path: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+
+  notify-slack:
+    name: Notify Slack in case of failure
+    runs-on: ubuntu-20.04
+    needs: build-dependencies
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    steps:
+      - name: Send Slack message
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Weekly build of FlexFlow dependencies failed! <https://github.com/flexflow/flexflow-third-party/actions/runs/$GITHUB_RUN_ID|(See here).> :x: \"}" $SLACK_WEBHOOK
+
+  create-release:
+    name: Create new release
+    runs-on: ubuntu-20.04
+    needs: build-dependencies
+    steps:
+      - name: Create folder for artifacts
+        run: mkdir artifacts compressed_artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+      - name: Display downloaded files
+        working-directory: ./artifacts
+        run: ls -R
+      # - name: Compress all artifacts
+      #   working-directory: ./artifacts
+      #   run: find . -maxdepth 1 -mindepth 1 -type d -exec tar zcvf ../compressed_artifacts/{}.tar.gz {}  \;
+      - name: Get datetime
+        run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.RELEASE_DATETIME }}
+          tag_name: ${{ env.RELEASE_DATETIME }}
+          token: ${{ secrets.FLEXFLOW_TOKEN }}
+          files: ./artifacts/*.tar.gz

@@ -1,52 +1,39 @@
-# if("${CUDA_ARCH}" STREQUAL "")
-#   include(utils)
-#   detect_installed_gpus(LEGION_CUDA_ARCH)
-#   message( STATUS "Detected CUDA_ARCH : ${LEGION_CUDA_ARCH}" )
-# else()
-#   set(LEGION_CUDA_ARCH ${CUDA_ARCH})
-# endif()
+if(FF_USE_EXTERNAL_LEGION)
+	if(NOT "${LEGION_ROOT}" STREQUAL "")
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${LEGION_ROOT}/share/Legion/cmake)
+	endif()
+	find_package(Legion REQUIRED)
+	get_target_property(LEGION_INCLUDE_DIRS Legion::RealmRuntime INTERFACE_INCLUDE_DIRECTORIES)
+	string(REGEX REPLACE "/include" "" LEGION_ROOT_TMP ${LEGION_INCLUDE_DIRS})
+	if("${LEGION_ROOT}" STREQUAL "")
+		set(LEGION_ROOT ${LEGION_ROOT_TMP})
+	else()
+		if(NOT "${LEGION_ROOT}" STREQUAL ${LEGION_ROOT_TMP})
+			message( FATAL_ERROR "LEGION_ROOT is not set correctly ${LEGION_ROOT} ${LEGION_ROOT_TMP}")
+		endif()
+	endif()
+	message(STATUS "Use external Legion cmake found: ${LEGION_ROOT_TMP}")
+	message(STATUS "Use external Legion: ${LEGION_ROOT}")
+	set(LEGION_LIBRARY Legion::Legion)
+else()
+	if(FF_USE_PYTHON)
+	  set(Legion_USE_Python ON CACHE BOOL "enable Legion_USE_Python")
+	endif()
+	if(FF_USE_GASNET)
+	  set(Legion_EMBED_GASNet ON CACHE BOOL "Use embed GASNet")
+	  set(Legion_EMBED_GASNet_VERSION "GASNet-2022.3.0" CACHE STRING "GASNet version")
+	  set(Legion_NETWORKS "gasnetex" CACHE STRING "GASNet conduit")
+	  set(GASNet_CONDUIT ${FF_GASNET_CONDUIT})
+	endif()
+	message(STATUS "GASNET ROOT: $ENV{GASNet_ROOT_DIR}")
+	set(Legion_MAX_DIM ${FF_MAX_DIM} CACHE STRING "Maximum number of dimensions")
+	#add_definitions(-DMAX_RETURN_SIZE=32768)
+	#add_definitions(-DLEGION_MAX_RETURN_SIZE=32768)
+	
+	set(Legion_USE_CUDA ON CACHE BOOL "enable Legion_USE_CUDA")
+	set(Legion_CUDA_ARCH ${FF_CUDA_ARCH} CACHE STRING "Legion CUDA ARCH")
+	message(STATUS "Legion_CUDA_ARCH: ${Legion_CUDA_ARCH}")
+	add_subdirectory(deps/legion)
+	set(LEGION_LIBRARY Legion)
+endif()
 
-set(LEGION_NAME legion)
-
-find_package(MPI REQUIRED)
-
-ExternalProject_get_property(${GASNET_NAME} INSTALL_DIR)
-set(GASNET_INSTALL_DIR ${INSTALL_DIR})
-
-# TODO default python version
-message(STATUS "Building ${LEGION_NAME}")
-message(STATUS "Max DIM: ${MAX_DIM}")
-message(STATUS "Python Version: ${PYTHON_VERSION}")
-ExternalProject_Add(${LEGION_NAME}
- DEPENDS ${GASNET_NAME}
- SOURCE_DIR ${PROJECT_SOURCE_DIR}/legion
- PREFIX ${LEGION_NAME}
- INSTALL_DIR ${LEGION_NAME}/install
- CONFIGURE_COMMAND ${CMAKE_COMMAND}
-   -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-   -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-   -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-   -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-   -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
-   -DMPI_C_COMPILER:FILEPATH=${MPI_C_COMPILER}
-   -DMPI_CXX_COMPILER:FILEPATH=${MPI_CXX_COMPILER}
-   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-   -DCUDA_USE_STATIC_CUDA_RUNTIME=OFF
-   -DGASNet_ROOT_DIR:PATH=${GASNET_INSTALL_DIR}
-   -DGASNet_INCLUDE_DIR:PATH=${GASNET_INSTALL_DIR}/include
-   -DGASNet_CONDUIT:STRING=${GASNet_CONDUIT}
-   ${Legion_GASNet_OPTS}
-   -DLegion_USE_GASNet=${ENABLE_GASNET}
-   -DLegion_USE_CUDA=ON
-   -DLegion_GPU_REDUCTIONS=OFF
-   -DLegion_MAX_DIM=${MAX_DIM}
-   -DLegion_BUILD_EXAMPLES=OFF
-   -DLegion_BUILD_APPS=OFF
-   -DLegion_CUDA_ARCH=${CUDA_ARCH}
-   -DLegion_USE_Python=${LEGION_USE_PYTHON}
-   -DLegion_Python_Version=${PYTHON_VERSION}
-   <SOURCE_DIR>
-)
-
-ExternalProject_get_property(${LEGION_NAME} INSTALL_DIR)
-install(DIRECTORY ${INSTALL_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX} USE_SOURCE_PERMISSIONS)
