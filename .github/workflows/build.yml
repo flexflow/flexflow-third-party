@@ -110,29 +110,31 @@ jobs:
           ../config/config.linux
           make install
 
-      - name: Trim library files
+      - name: Prepare library files
+        env:
+          NCCL_TARBALL: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          LEGION_TARBALL: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
         run: |
           rm -rf build/deps/nccl/obj
           rm -rf build/deps/nccl/src
           rm -rf build/deps/nccl/tmp
-          rm -f build/deps/nccl/lib/*.so.*
-
           rm -f build/export/legion/lib/libflexflow.so
-          rm -f build/export/legion/lib/*.so.*
+          tar -zcvf $NCCL_TARBALL build/deps/nccl/
+          tar -zcvf $NCCL_TARBALL build/export/legion/
 
       - name: Archive compiled Legion library
         uses: actions/upload-artifact@v3
         #if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: "legion_${{ matrix.os }}_${{ matrix.cuda_version }}"
-          path: build/export/legion
+          name: legion_${{ matrix.os }}_${{ matrix.cuda_version }}
+          path: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
 
       - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
         #if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: "nccl_${{ matrix.os }}_${{ matrix.cuda_version }}"
-          path: build/deps/nccl
+          name: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}
+          path: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
 
   notify-slack:
     name: Notify Slack in case of failure
@@ -160,9 +162,9 @@ jobs:
       - name: Display structure of downloaded files
         working-directory: ./artifacts
         run: ls -R
-      - name: Compress all artifacts
-        working-directory: ./artifacts
-        run: find . -maxdepth 1 -mindepth 1 -type d -exec tar zcvf ../compressed_artifacts/{}.tar.gz {}  \;
+      # - name: Compress all artifacts
+      #   working-directory: ./artifacts
+      #   run: find . -maxdepth 1 -mindepth 1 -type d -exec tar zcvf ../compressed_artifacts/{}.tar.gz {}  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
       - name: Release
@@ -171,4 +173,4 @@ jobs:
           name: ${{ env.RELEASE_DATETIME }}
           tag_name: ${{ env.RELEASE_DATETIME }}
           token: ${{ secrets.FLEXFLOW_TOKEN }}
-          files: ./compressed_artifacts/*.tar.gz
+          files: ./artifacts/*.tar.gz
