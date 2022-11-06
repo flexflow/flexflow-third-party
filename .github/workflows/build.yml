@@ -124,7 +124,7 @@ jobs:
           echo "Checking the size of the NCCL tarball..."
           du -h $NCCL_TARBALL
           echo "Creating archive $LEGION_TARBALL"
-          tar -zcvf $NCCL_TARBALL build/export/legion/
+          tar -zcvf $LEGION_TARBALL build/export/legion/
           echo "Checking the size of the Legion tarball..."
           du -h $LEGION_TARBALL
 
