@@ -71,7 +71,7 @@ jobs:
 
           sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
           sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
-          
+
           mkdir build
           cd build
           ../config/config.linux
@@ -128,6 +128,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build-dependencies
     steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
       - name: Create folder for artifacts
         run: mkdir artifacts unwrapped_artifacts
       - name: Download artifacts
@@ -142,7 +144,6 @@ jobs:
         run: find . -maxdepth 2 -mindepth 2 -type f -name "*.tar.gz" -exec mv {} ../unwrapped_artifacts/  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
-      
       - name: Release
         env:
           NAME: ${{ env.RELEASE_DATETIME }}
