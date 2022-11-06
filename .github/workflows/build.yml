@@ -170,7 +170,7 @@ jobs:
         run: ls -R
       - name: Unwrap all artifacts
         working-directory: ./artifacts
-        run: find . -maxdepth 2 -mindepth 2 -type f -name "*.tar.gz" -exec cp {} ../unwrapped_artifacts/  \;
+        run: find . -maxdepth 2 -mindepth 2 -type f -name "*.tar.gz" -exec mv {} ../unwrapped_artifacts/  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
       - name: Release
