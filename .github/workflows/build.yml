@@ -38,7 +38,7 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-      fail-fast: true
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Git Repository
