@@ -69,40 +69,9 @@ jobs:
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
 
-          # Let Legion/NCCL autodetect compatible gencodes
-          # cuda_version=$(echo "${CUDA_VERSION}" | cut -f1,2 -d'.')
-          # GENCODES_L80_GE50="50 52 53 60 61 62 70 72 75"
-          # GENCODES_L80="30 35 37 50 52 53 60 61 62 70 72 75"
-          # GENCODES_GE50="50 52 53 60 61 62 70 72 75 80 86 87"
-          # GENCODES_GE60="60 61 62 70 72 75 80 86 87"
-          # if [[ "$cuda_version" == "10.1" ]]; then
-          #   GENCODES="$GENCODES_L80"
-          # elif [[ "$cuda_version" == "10.2" ]]; then
-          #   GENCODES="$GENCODES_L80"
-          # elif [[ "$cuda_version" == "11.0" ]]; then
-          #   GENCODES="$GENCODES_L80_GE50"
-          # elif [[ "$cuda_version" == "11.1" ]]; then
-          #   GENCODES="$GENCODES_GE50"
-          # elif [[ "$cuda_version" == "11.2" ]]; then
-          #   GENCODES="$GENCODES_GE50"
-          # elif [[ "$cuda_version" == "11.3" ]]; then
-          #   GENCODES="$GENCODES_GE50"
-          # elif [[ "$cuda_version" == "11.4" ]]; then
-          #   GENCODES="$GENCODES_GE50"
-          # elif [[ "$cuda_version" == "11.5" ]]; then
-          #   GENCODES="$GENCODES_GE50"
-          # elif [[ "$cuda_version" == "11.6" ]]; then
-          #   GENCODES="$GENCODES_GE60"
-          # elif [[ "$cuda_version" == "11.7" ]]; then
-          #   GENCODES="$GENCODES_GE60"
-          # fi
-          # sed -i "/FF_CUDA_ARCH/c\FF_CUDA_ARCH=\"$GENCODES\"" ./config/config.linux
-
-          #if [[ "$DEPENDENCY" == "legion" ]]; then
-            sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
-          #else
-            sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
-          #fi
+          sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
+          sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
+          
           mkdir build
           cd build
           ../config/config.linux
@@ -173,10 +142,10 @@ jobs:
         run: find . -maxdepth 2 -mindepth 2 -type f -name "*.tar.gz" -exec mv {} ../unwrapped_artifacts/  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
+      
       - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ env.RELEASE_DATETIME }}
-          tag_name: ${{ env.RELEASE_DATETIME }}
-          token: ${{ secrets.FLEXFLOW_TOKEN }}
-          files: ./unwrapped_artifacts/*.tar.gz
+        env:
+          NAME: ${{ env.RELEASE_DATETIME }}
+          TAG_NAME: ${{ env.RELEASE_DATETIME }}
+          GITHUB_TOKEN: ${{ secrets.FLEXFLOW_TOKEN }}
+        run: gh release create $TAG_NAME ./unwrapped_artifacts/*.tar.gz
