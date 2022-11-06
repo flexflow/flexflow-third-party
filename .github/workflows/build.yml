@@ -115,12 +115,18 @@ jobs:
           NCCL_TARBALL: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
           LEGION_TARBALL: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
         run: |
-          rm -rf build/deps/nccl/obj
-          rm -rf build/deps/nccl/src
-          rm -rf build/deps/nccl/tmp
+          # Remove unnecessary files
+          echo "Removing unnecessary files..."
+          rm -rf build/deps/nccl/obj build/deps/nccl/src build/deps/nccl/tmp
           rm -f build/export/legion/lib/libflexflow.so
+          echo "Creating archive $NCCL_TARBALL"
           tar -zcvf $NCCL_TARBALL build/deps/nccl/
+          echo "Checking the size of the NCCL tarball..."
+          du -h $NCCL_TARBALL
+          echo "Creating archive $LEGION_TARBALL"
           tar -zcvf $NCCL_TARBALL build/export/legion/
+          echo "Checking the size of the Legion tarball..."
+          du -h $LEGION_TARBALL
 
       - name: Archive compiled Legion library
         uses: actions/upload-artifact@v3
@@ -154,7 +160,7 @@ jobs:
     needs: build-dependencies
     steps:
       - name: Create folder for artifacts
-        run: mkdir artifacts compressed_artifacts
+        run: mkdir artifacts unwrapped_artifacts
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -162,9 +168,9 @@ jobs:
       - name: Display structure of downloaded files
         working-directory: ./artifacts
         run: ls -R
-      # - name: Compress all artifacts
-      #   working-directory: ./artifacts
-      #   run: find . -maxdepth 1 -mindepth 1 -type d -exec tar zcvf ../compressed_artifacts/{}.tar.gz {}  \;
+      - name: Unwrap all artifacts
+        working-directory: ./artifacts
+        run: find . -maxdepth 2 -mindepth 2 -type f -name "*.tar.gz" -exec cp {} ../unwrapped_artifacts/  \;
       - name: Get datetime
         run: echo "RELEASE_DATETIME=$(date '+%Y-%m-%dT%H-%M-%S')" >> $GITHUB_ENV
       - name: Release
@@ -173,4 +179,4 @@ jobs:
           name: ${{ env.RELEASE_DATETIME }}
           tag_name: ${{ env.RELEASE_DATETIME }}
           token: ${{ secrets.FLEXFLOW_TOKEN }}
-          files: ./artifacts/*.tar.gz
+          files: ./unwrapped_artifacts/*.tar.gz
