@@ -19,6 +19,7 @@ mkdir -p $INSTALL_DIR
 
 # set build type
 BUILD_TYPE=Release
+BUILD_MARCH=x86-64
 
 # set CUDA Arch, replace xx with your GPU architecture
 #FF_CUDA_ARCH=xx
