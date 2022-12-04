@@ -2,6 +2,9 @@
 set -euo pipefail
 set -x
 
+# Cd into directory holding this script
+cd "${BASH_SOURCE[0]%/*}"
+
 # General dependencies
 echo "Installing apt dependencies..."
 sudo apt-get update && sudo apt-get install -y --no-install-recommends wget binutils git zlib1g-dev && \
