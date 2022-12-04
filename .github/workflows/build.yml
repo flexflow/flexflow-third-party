@@ -30,7 +30,7 @@ jobs:
             "11.6.2",
             "11.7.0",
           ]
-        gpu_backend: [cuda, hip_rocm],
+        gpu_backend: [cuda, hip_rocm]
         # uncomment the line below (and related ones) to build nccl, legion in parallel. Because
         # git only supports up to 20 jobs in parallel, building in parallel is currently not needed.
         #dependency: ["nccl", "legion"]
