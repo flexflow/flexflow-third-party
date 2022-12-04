@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      
+
       - name: Free additional space on runner
         run: .github/workflows/helpers/free_space_on_runner.sh
 
@@ -93,11 +93,14 @@ jobs:
           export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
           export CUDA_DIR=/usr/local/cuda
+
+          export FF_BUILD_LEGION=ON
+          if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
+            export FF_USE_NCCL=ON
+          fi
+
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
-
-          sed -i "/FF_BUILD_LEGION/c\FF_BUILD_LEGION=ON" ./config/config.linux
-          sed -i "/FF_USE_NCCL/c\FF_USE_NCCL=ON" ./config/config.linux
 
           mkdir build
           cd build
