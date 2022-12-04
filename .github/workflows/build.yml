@@ -30,6 +30,7 @@ jobs:
             "11.6.2",
             "11.7.0",
           ]
+        gpu_backend: [cuda, hip_rocm],
         # uncomment the line below (and related ones) to build nccl, legion in parallel. Because
         # git only supports up to 20 jobs in parallel, building in parallel is currently not needed.
         #dependency: ["nccl", "legion"]
@@ -38,6 +39,27 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
+          # Only pre-compile hip_rocm on Ubuntu 20.04 with one single version of CUDA (although CUDA is not necessary)
+          - os: ubuntu-18.04
+            gpu_backend: "hip_rocm"
+          - cuda_version: "10.1.243"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "10.2.89"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.0.3"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.2.2"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.3.1"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.4.3"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.5.2"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.6.2"
+            gpu_backend: "hip_rocm"
+          - cuda_version: "11.7.0"
+            gpu_backend: "hip_rocm"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -45,6 +67,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+      
+      - name: Free additional space on runner
+        run: .github/workflows/helpers/free_space_on_runner.sh
 
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.8
@@ -56,12 +81,14 @@ jobs:
       - name: Install Build Dependencies
         env:
           CUDA_VERSION: ${{ matrix.cuda_version }}
-        run: .github/workflows/helpers/install_dependencies.sh $CUDA_VERSION
+          FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
+        run: .github/workflows/helpers/install_dependencies.sh
 
       - name: Build NCCL/Legion
         env:
           #DEPENDENCY: ${{ matrix.dependency }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
+          FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
           export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
@@ -81,8 +108,8 @@ jobs:
 
       - name: Prepare library files
         env:
-          NCCL_TARBALL: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
-          LEGION_TARBALL: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          NCCL_TARBALL: nccl_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}.tar.gz
+          LEGION_TARBALL: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}.tar.gz
         run: |
           # Remove unnecessary files
           echo "Removing unnecessary files..."
@@ -101,15 +128,15 @@ jobs:
         uses: actions/upload-artifact@v3
         #if: ${{ matrix.dependency == 'legion' }}
         with:
-          name: legion_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}
+          path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}.tar.gz
 
       - name: Archive compiled NCCL library
         uses: actions/upload-artifact@v3
         #if: ${{ matrix.dependency == 'nccl' }}
         with:
-          name: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          name: nccl_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}
+          path: nccl_${{ matrix.os }}_${{ matrix.gpu_backend }}_${{ matrix.cuda_version }}.tar.gz
 
   notify-slack:
     name: Notify Slack in case of failure
