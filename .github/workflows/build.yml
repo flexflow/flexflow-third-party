@@ -110,6 +110,8 @@ jobs:
           make install
 
       - name: Prepare library files
+        env:
+          FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
           # Remove unnecessary files
           echo "Removing unnecessary files..."
