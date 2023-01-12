@@ -47,10 +47,9 @@ jobs:
 
       - name: Archive compiled NCCL libraries
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
           name: nccl_${{ matrix.os }}
-          path: nccl_downloads
+          path: nccl_downloads/*.tar.gz
   
   build-legion:
     name: Build Legion
