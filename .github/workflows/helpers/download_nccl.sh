@@ -22,6 +22,11 @@ if [[ "$ubuntu_version" == "2004" ]]; then
 	sudo apt download libnccl2=2.12.12-1+cuda11.6 libnccl-dev=2.12.12-1+cuda11.6
 	sudo apt download libnccl2=2.14.3-1+cuda11.7 libnccl-dev=2.14.3-1+cuda11.7
 elif [[ "$ubuntu_version" == "1804" ]]; then
+	# Additional key required to download the CUDA 10.1 version
+	wget https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
+	sudo dpkg -i nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
+	sudo apt-get update -y
+	rm -f nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
     sudo apt download libnccl2=2.8.3-1+cuda10.1 libnccl-dev=2.8.3-1+cuda10.1
 	sudo apt download libnccl2=2.15.5-1+cuda10.2 libnccl-dev=2.15.5-1+cuda10.2
 	sudo apt download libnccl2=2.15.5-1+cuda11.0 libnccl-dev=2.15.5-1+cuda11.0

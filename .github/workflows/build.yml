@@ -32,15 +32,17 @@ jobs:
       - name: Prepare library files
         working-directory: nccl_downloads
         run: |
-          for folder in */ ; do
-            cd $folder
-            export NCCL_TARBALL="nccl_${{ matrix.os }}_${folder}.tar.gz"
-            echo "Creating archive $NCCL_TARBALL"
-            tar -zcvf $NCCL_TARBALL nccl
-            echo "Checking the size of the NCCL tarball..."
-            du -h $NCCL_TARBALL
-            mv $NCCL_TARBALL ../
-            cd ..
+          for folder in *; do
+            if [ -d "$folder" ]; then
+              cd $folder
+              export NCCL_TARBALL="nccl_${{ matrix.os }}_${folder}.tar.gz"
+              echo "Creating archive $NCCL_TARBALL"
+              tar -zcvf $NCCL_TARBALL nccl
+              echo "Checking the size of the NCCL tarball..."
+              du -h $NCCL_TARBALL
+              mv $NCCL_TARBALL ../
+              cd ..
+            fi
           done
 
       - name: Archive compiled NCCL libraries
