@@ -12,8 +12,47 @@ concurrency:
   group: build-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 jobs:
-  build-dependencies:
-    name: Build the FlexFlow dependencies
+  download-nccl:
+    name: Download and Package NCCL
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+
+      - name: Free additional space on runner
+        run: .github/workflows/helpers/free_space_on_runner.sh
+
+      - name: Download NCCL
+        run: .github/workflows/helpers/download_nccl.sh
+
+      - name: Prepare library files
+        working-directory: nccl_downloads
+        run: |
+          for folder in */ ; do
+            cd $folder
+            export NCCL_TARBALL="nccl_${{ matrix.os }}_${folder}.tar.gz"
+            echo "Creating archive $NCCL_TARBALL"
+            tar -zcvf $NCCL_TARBALL nccl
+            echo "Checking the size of the NCCL tarball..."
+            du -h $NCCL_TARBALL
+            mv $NCCL_TARBALL ../
+            cd ..
+          done
+
+      - name: Archive compiled NCCL libraries
+        uses: actions/upload-artifact@v3
+        if: ${{ matrix.gpu_backend == 'cuda' }}
+        with:
+          name: nccl_${{ matrix.os }}
+          path: nccl_downloads
+  
+  build-legion:
+    name: Build Legion
+    needs: download-nccl
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
@@ -84,7 +123,7 @@ jobs:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: .github/workflows/helpers/install_dependencies.sh
 
-      - name: Build NCCL/Legion
+      - name: Build Legion
         env:
           #DEPENDENCY: ${{ matrix.dependency }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
@@ -95,9 +134,7 @@ jobs:
           export CUDA_DIR=/usr/local/cuda
 
           export FF_BUILD_LEGION=ON
-          if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export FF_USE_NCCL=ON
-          fi
+          export FF_USE_NCCL=OFF
 
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
@@ -113,20 +150,8 @@ jobs:
         env:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
-          # Remove unnecessary files
-          echo "Removing unnecessary files..."
-          rm -rf build/deps/nccl/obj build/deps/nccl/src build/deps/nccl/tmp
-          rm -f build/export/legion/lib/libflexflow.so
-
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export NCCL_TARBALL="nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
             export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
-            
-            # Only build NCCL tarball for CUDA backends
-            echo "Creating archive $NCCL_TARBALL"
-            tar -zcvf $NCCL_TARBALL build/deps/nccl/
-            echo "Checking the size of the NCCL tarball..."
-            du -h $NCCL_TARBALL
           else
             export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz"
           fi
@@ -150,17 +175,10 @@ jobs:
           name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}
           path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz
 
-      - name: Archive compiled NCCL library (CUDA)
-        uses: actions/upload-artifact@v3
-        if: ${{ matrix.gpu_backend == 'cuda' }}
-        with:
-          name: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
-
   notify-slack:
     name: Notify Slack in case of failure
     runs-on: ubuntu-20.04
-    needs: build-dependencies
+    needs: build-legion
     if: ${{ failure() && github.event_name == 'schedule' }}
     steps:
       - name: Send Slack message
@@ -172,7 +190,7 @@ jobs:
   create-release:
     name: Create new release
     runs-on: ubuntu-20.04
-    needs: build-dependencies
+    needs: build-legion
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3

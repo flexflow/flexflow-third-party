@@ -2,6 +2,9 @@
 set -euo pipefail
 set -x
 
+mkdir -p nccl_downloads
+cd nccl_downloads
+
 ubuntu_version=$(lsb_release -rs)
 ubuntu_version=${ubuntu_version//./}
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${ubuntu_version}/x86_64/cuda-keyring_1.0-1_all.deb
@@ -49,3 +52,5 @@ for debfile in *.deb; do
 	rm -rf usr
 	cd ../../
 done
+
+rm -rf *.deb
