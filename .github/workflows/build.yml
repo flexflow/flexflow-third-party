@@ -53,7 +53,6 @@ jobs:
 
   build-legion:
     name: Build Legion
-    needs: download-nccl
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
@@ -187,7 +186,7 @@ jobs:
   notify-slack:
     name: Notify Slack in case of failure
     runs-on: ubuntu-20.04
-    needs: build-legion
+    needs: [download-nccl, build-legion]
     if: ${{ failure() && github.event_name == 'schedule' }}
     steps:
       - name: Send Slack message
@@ -199,7 +198,7 @@ jobs:
   create-release:
     name: Create new release
     runs-on: ubuntu-20.04
-    needs: build-legion
+    needs: [download-nccl, build-legion]
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
