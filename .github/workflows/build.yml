@@ -151,7 +151,7 @@ jobs:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
         run: |
-          echo "CUDA_VERSION=$CUDA_VERSION" >> $GITHUB_ENV
+          export CUDA_VERSION_MAJOR="${CUDA_VERSION:0:4}"
           echo "CUDA_VERSION_MAJOR=${CUDA_VERSION:0:4}" >> $GITHUB_ENV
 
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
@@ -172,8 +172,8 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}
-          path: legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}.tar.gz
+          name: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}
+          path: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}.tar.gz
 
       - name: Archive compiled Legion library (HIP)
         uses: actions/upload-artifact@v3
