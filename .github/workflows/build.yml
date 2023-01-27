@@ -63,11 +63,11 @@ jobs:
             "10.2.89",
             "11.0.3",
             "11.1.1",
-            "11.2.2",
-            "11.3.1",
-            "11.4.3",
-            "11.5.2",
-            "11.6.2",
+            "11.2.0",
+            "11.3.0",
+            "11.4.0",
+            "11.5.0",
+            "11.6.0",
             "11.7.0",
           ]
         gpu_backend: [cuda, hip_rocm]
@@ -88,15 +88,15 @@ jobs:
             gpu_backend: "hip_rocm"
           - cuda_version: "11.0.3"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.2.2"
+          - cuda_version: "11.2.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.3.1"
+          - cuda_version: "11.3.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.4.3"
+          - cuda_version: "11.4.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.5.2"
+          - cuda_version: "11.5.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.6.2"
+          - cuda_version: "11.6.0"
             gpu_backend: "hip_rocm"
           - cuda_version: "11.7.0"
             gpu_backend: "hip_rocm"
