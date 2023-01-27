@@ -160,9 +160,12 @@ jobs:
           fi
 
           echo "Creating archive $LEGION_TARBALL"
-          tar -zcvf $LEGION_TARBALL build/export/legion/
+          cd build/export
+          tar -zcvf $LEGION_TARBALL legion
           echo "Checking the size of the Legion tarball..."
           du -h $LEGION_TARBALL
+          mv $LEGION_TARBALL ../../
+          cd ../../
 
       - name: Archive compiled Legion library (CUDA)
         env:
