@@ -150,8 +150,10 @@ jobs:
         env:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
-          CUDA_VERSION_MAJOR: ${CUDA_VERSION:0:4}
         run: |
+          echo "CUDA_VERSION=$CUDA_VERSION" >> $GITHUB_ENV
+          echo "CUDA_VERSION_MAJOR=${CUDA_VERSION:0:4}" >> $GITHUB_ENV
+
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
             export LEGION_TARBALL="legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}.tar.gz"
           else
@@ -167,9 +169,6 @@ jobs:
           cd ../../
 
       - name: Archive compiled Legion library (CUDA)
-        env:
-          CUDA_VERSION: ${{ matrix.cuda_version }}
-          CUDA_VERSION_MAJOR: ${CUDA_VERSION:0:4}
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
