@@ -150,9 +150,11 @@ jobs:
       - name: Prepare library files
         env:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
+          CUDA_VERSION: ${{ matrix.cuda_version }}
+          CUDA_VERSION_MAJOR: ${CUDA_VERSION:0:4}
         run: |
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
+            export LEGION_TARBALL="legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}.tar.gz"
           else
             export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz"
           fi
@@ -163,11 +165,14 @@ jobs:
           du -h $LEGION_TARBALL
 
       - name: Archive compiled Legion library (CUDA)
+        env:
+          CUDA_VERSION: ${{ matrix.cuda_version }}
+          CUDA_VERSION_MAJOR: ${CUDA_VERSION:0:4}
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          name: legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}
+          path: legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}.tar.gz
 
       - name: Archive compiled Legion library (HIP)
         uses: actions/upload-artifact@v3
