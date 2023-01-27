@@ -44,9 +44,9 @@ for debfile in *.deb; do
     temp_str=${debfile#*+}
     temp_str=${temp_str%_*}
 	cuda_version=${temp_str:4}
-	mkdir -p $cuda_version/nccl
-	dpkg-deb -xv $debfile ./$cuda_version/nccl
-	cd $cuda_version/nccl
+	mkdir -p cuda-$cuda_version/nccl
+	dpkg-deb -xv $debfile ./cuda-$cuda_version/nccl
+	cd cuda-$cuda_version/nccl
 	[ -d ./usr/include ] && mv ./usr/include ./
 	mkdir -p lib
 	files_to_move=(./usr/lib/x86_64-linux-gnu/*.a)
