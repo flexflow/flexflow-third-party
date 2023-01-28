@@ -43,6 +43,6 @@ sudo rm -rf /var/lib/apt/lists/*
 
 # Install conda packages
 echo "Installing conda packages..."
-export PATH=/opt/conda/bin:$PATH
+#export PATH=/opt/conda/bin:$PATH
 conda install cmake make
 conda install -c conda-forge numpy keras-preprocessing pybind11 cmake-build-extension pillow=9.0.0

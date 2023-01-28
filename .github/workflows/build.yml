@@ -134,7 +134,7 @@ jobs:
           CUDA_VERSION: ${{ matrix.cuda_version }}
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
-          export PATH=/opt/conda/bin:$PATH
+          #export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
           export CUDA_DIR=/usr/local/cuda
 
