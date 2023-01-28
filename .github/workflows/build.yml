@@ -170,15 +170,15 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}
-          path: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}.tar.gz
+          name: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}_python${{ matrix.python_version }}
+          path: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}_python${{ matrix.python_version }}.tar.gz
 
       - name: Archive compiled Legion library (HIP)
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend != 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}
-          path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz
+          name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}
+          path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}.tar.gz
 
   notify-slack:
     name: Notify Slack in case of failure
