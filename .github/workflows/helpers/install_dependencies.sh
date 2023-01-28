@@ -21,6 +21,9 @@ MINICONDA_BASE_URL="https://repo.continuum.io/miniconda/"
 if [[ "$PY_VERSION" == "latest" ]]; then
     echo "Installing latest Python version"
     MINICONDA_INSTALLER="Miniconda3-latest-Linux-x86_64.sh"
+elif [[ "$PY_VERSION" == "3.10" ]]; then
+    echo "Installing Python version ${PY_VERSION}"
+    MINICONDA_INSTALLER="Miniconda3-py310_22.11.1-1-Linux-x86_64.sh"
 elif [[ "$PY_VERSION" == "3.9" ]]; then
     echo "Installing Python version ${PY_VERSION}"
     MINICONDA_INSTALLER="Miniconda3-py39_22.11.1-1-Linux-x86_64.sh"

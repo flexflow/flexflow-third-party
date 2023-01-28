@@ -70,7 +70,7 @@ jobs:
             "11.7.0",
           ]
         gpu_backend: [cuda, hip_rocm]
-        python_version: ["3.9"] #["3.7", "3.8", "3.9", "3.10"]
+        python_version: ["3.7", "3.8", "3.9", "3.10"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
@@ -153,9 +153,9 @@ jobs:
           echo "CUDA_VERSION_MAJOR=${CUDA_VERSION:0:4}" >> $GITHUB_ENV
 
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export LEGION_TARBALL="legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}.tar.gz"
+            export LEGION_TARBALL="legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}_python${{ matrix.python_version }}.tar.gz"
           else
-            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz"
+            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}.tar.gz"
           fi
 
           echo "Creating archive $LEGION_TARBALL"
