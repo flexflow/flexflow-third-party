@@ -15,14 +15,14 @@ CUDA_VERSION=${CUDA_VERSION:-11.1.1}
 ./install_cudnn.sh "${CUDA_VERSION}"
 
 # Install Miniconda
-echo "Installing Miniconda..."
-wget -c -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    chmod +x ./Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
-    rm ./Miniconda3-latest-Linux-x86_64.sh && \
-    /opt/conda/bin/conda upgrade --all && \
-    /opt/conda/bin/conda install conda-build conda-verify && \
-    /opt/conda/bin/conda clean -ya
+# echo "Installing Miniconda..."
+# wget -c -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+#     chmod +x ./Miniconda3-latest-Linux-x86_64.sh && \
+#     bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
+#     rm ./Miniconda3-latest-Linux-x86_64.sh && \
+#     /opt/conda/bin/conda upgrade --all && \
+#     /opt/conda/bin/conda install conda-build conda-verify && \
+#     /opt/conda/bin/conda clean -ya
 
 # Install HIP dependencies if needed
 FF_GPU_BACKEND=${FF_GPU_BACKEND:-"cuda"}
