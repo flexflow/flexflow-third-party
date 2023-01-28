@@ -70,7 +70,7 @@ jobs:
             "11.7.0",
           ]
         gpu_backend: [cuda, hip_rocm]
-        python_version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python_version: ["3.9"] #["3.7", "3.8", "3.9", "3.10"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
@@ -108,12 +108,6 @@ jobs:
       - name: Free additional space on runner
         run: .github/workflows/helpers/free_space_on_runner.sh
 
-      - name: Install Miniconda (Python ${{ matrix.python_version }})
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python_version }}
-
       - name: Install CUDA
         uses: Jimver/cuda-toolkit@v0.2.8
         id: cuda-toolkit
@@ -125,16 +119,15 @@ jobs:
         env:
           CUDA_VERSION: ${{ matrix.cuda_version }}
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
-          LEGION_PYTHON_VERSION: ${{ matrix.python_version }}
+          PY_VERSION: ${{ matrix.python_version }}
         run: .github/workflows/helpers/install_dependencies.sh
 
       - name: Build Legion
         env:
-          #DEPENDENCY: ${{ matrix.dependency }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
-          #export PATH=/opt/conda/bin:$PATH
+          export PATH=/opt/conda/bin:$PATH
           export CUDNN_DIR=/usr/local/cuda
           export CUDA_DIR=/usr/local/cuda
 

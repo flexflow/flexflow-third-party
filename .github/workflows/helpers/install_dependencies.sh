@@ -14,15 +14,34 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends wget binu
 CUDA_VERSION=${CUDA_VERSION:-11.1.1}
 ./install_cudnn.sh "${CUDA_VERSION}"
 
-# Install Miniconda
-# echo "Installing Miniconda..."
-# wget -c -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-#     chmod +x ./Miniconda3-latest-Linux-x86_64.sh && \
-#     bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
-#     rm ./Miniconda3-latest-Linux-x86_64.sh && \
-#     /opt/conda/bin/conda upgrade --all && \
-#     /opt/conda/bin/conda install conda-build conda-verify && \
-#     /opt/conda/bin/conda clean -ya
+#Install Miniconda
+echo "Installing Miniconda..."
+PY_VERSION=${PY_VERSION:latest}
+MINICONDA_BASE_URL="https://repo.continuum.io/miniconda/"
+if [[ "$PY_VERSION" == "latest" ]]; then
+    echo "Installing latest Python version"
+    MINICONDA_INSTALLER="Miniconda3-latest-Linux-x86_64.sh"
+elif [[ "$PY_VERSION" == "3.9" ]]; then
+    echo "Installing Python version ${PY_VERSION}"
+    MINICONDA_INSTALLER="Miniconda3-py39_22.11.1-1-Linux-x86_64.sh"
+elif [[ "$PY_VERSION" == "3.8" ]]; then
+    echo "Installing Python version ${PY_VERSION}"
+    MINICONDA_INSTALLER="Miniconda3-py38_22.11.1-1-Linux-x86_64.sh"
+elif [[ "$PY_VERSION" == "3.7" ]]; then
+    echo "Installing Python version ${PY_VERSION}"
+    MINICONDA_INSTALLER="Miniconda3-py37_22.11.1-1-Linux-x86_64.sh"
+else
+    echo "Request Python version (${PY_VERSION}) not supported"
+    exit 1
+fi
+MINICONDA_URL="${MINICONDA_BASE_URL}${MINICONDA_INSTALLER}"
+wget -c -q $MINICONDA_URL && \
+    chmod +x $MINICONDA_INSTALLER && \
+    bash $MINICONDA_INSTALLER -b -p /opt/conda && \
+    rm $MINICONDA_INSTALLER && \
+    /opt/conda/bin/conda upgrade --all && \
+    /opt/conda/bin/conda install conda-build conda-verify && \
+    /opt/conda/bin/conda clean -ya
 
 # Install HIP dependencies if needed
 FF_GPU_BACKEND=${FF_GPU_BACKEND:-"cuda"}
