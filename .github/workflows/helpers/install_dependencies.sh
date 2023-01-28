@@ -16,7 +16,7 @@ CUDA_VERSION=${CUDA_VERSION:-11.1.1}
 
 #Install Miniconda
 echo "Installing Miniconda..."
-PY_VERSION=${PY_VERSION:latest}
+PY_VERSION=${PY_VERSION:-latest}
 MINICONDA_BASE_URL="https://repo.continuum.io/miniconda/"
 if [[ "$PY_VERSION" == "latest" ]]; then
     echo "Installing latest Python version"
