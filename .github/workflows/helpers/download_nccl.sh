@@ -7,7 +7,7 @@ cd nccl_downloads
 
 ubuntu_version=$(lsb_release -rs)
 ubuntu_version=${ubuntu_version//./}
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${ubuntu_version}/x86_64/cuda-keyring_1.0-1_all.deb
+wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${ubuntu_version}/x86_64/cuda-keyring_1.0-1_all.deb"
 sudo dpkg -i cuda-keyring_1.0-1_all.deb
 sudo apt-get update -y
 rm -f cuda-keyring_1.0-1_all.deb
@@ -44,17 +44,17 @@ for debfile in *.deb; do
     temp_str=${debfile#*+}
     temp_str=${temp_str%_*}
 	cuda_version=${temp_str:4}
-	mkdir -p cuda-$cuda_version/nccl
-	dpkg-deb -xv $debfile ./cuda-$cuda_version/nccl
-	cd cuda-$cuda_version/nccl
+	mkdir -p "cuda-$cuda_version/nccl"
+	dpkg-deb -xv "$debfile" "./cuda-$cuda_version/nccl"
+	cd "cuda-$cuda_version/nccl"
 	[ -d ./usr/include ] && mv ./usr/include ./
 	mkdir -p lib
 	files_to_move=(./usr/lib/x86_64-linux-gnu/*.a)
-	[ -f ${files_to_move[0]} ] && mv ./usr/lib/x86_64-linux-gnu/*.a ./lib/
+	[ -f "${files_to_move[0]}" ] && mv ./usr/lib/x86_64-linux-gnu/*.a ./lib/
 	files_to_move=(./usr/lib/x86_64-linux-gnu/*.so)
-	[ -f ${files_to_move[0]} ] && mv ./usr/lib/x86_64-linux-gnu/*.so ./lib/
+	[ -f "${files_to_move[0]}" ] && mv ./usr/lib/x86_64-linux-gnu/*.so ./lib/
 	files_to_move=(./usr/lib/x86_64-linux-gnu/*.so.*)
-	[ -f ${files_to_move[0]} ] && mv ./usr/lib/x86_64-linux-gnu/*.so.* ./lib/
+	[ -f "${files_to_move[0]}" ] && mv ./usr/lib/x86_64-linux-gnu/*.so.* ./lib/
 	symlinks_to_move="$(find ./usr/lib/x86_64-linux-gnu/ -type l )"
 	for s in $symlinks_to_move; do
 		fname="$(basename $s)"
