@@ -57,11 +57,11 @@ for debfile in *.deb; do
 	[ -f "${files_to_move[0]}" ] && mv ./usr/lib/x86_64-linux-gnu/*.so.* ./lib/
 	symlinks_to_move="$(find ./usr/lib/x86_64-linux-gnu/ -type l )"
 	for s in $symlinks_to_move; do
-		fname="$(basename $s)"
-		ln -s "$(readlink $s )" ./lib/$fname
+		fname="$(basename "$s")"
+		ln -s "$(readlink "$s" )" "./lib/$fname"
 	done
 	rm -rf usr
 	cd ../../
 done
 
-rm -rf *.deb
+rm -rf ./*.deb
