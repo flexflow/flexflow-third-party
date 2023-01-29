@@ -12,8 +12,47 @@ concurrency:
   group: build-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 jobs:
-  build-dependencies:
-    name: Build the FlexFlow dependencies
+  download-nccl:
+    name: Download and Package NCCL
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+
+      - name: Free additional space on runner
+        run: .github/workflows/helpers/free_space_on_runner.sh
+
+      - name: Download NCCL
+        run: .github/workflows/helpers/download_nccl.sh
+
+      - name: Prepare library files
+        working-directory: nccl_downloads
+        run: |
+          for folder in *; do
+            if [ -d "$folder" ]; then
+              cd $folder
+              export NCCL_TARBALL="nccl_${{ matrix.os }}_${folder}.tar.gz"
+              echo "Creating archive $NCCL_TARBALL"
+              tar -zcvf $NCCL_TARBALL nccl
+              echo "Checking the size of the NCCL tarball..."
+              du -h $NCCL_TARBALL
+              mv $NCCL_TARBALL ../
+              cd ..
+            fi
+          done
+
+      - name: Archive compiled NCCL libraries
+        uses: actions/upload-artifact@v3
+        with:
+          name: nccl_${{ matrix.os }}
+          path: nccl_downloads/*.tar.gz
+
+  build-legion:
+    name: Build Legion
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
@@ -23,17 +62,15 @@ jobs:
             "10.2.89",
             "11.0.3",
             "11.1.1",
-            "11.2.2",
-            "11.3.1",
-            "11.4.3",
-            "11.5.2",
-            "11.6.2",
+            "11.2.0",
+            "11.3.0",
+            "11.4.0",
+            "11.5.0",
+            "11.6.0",
             "11.7.0",
           ]
         gpu_backend: [cuda, hip_rocm]
-        # uncomment the line below (and related ones) to build nccl, legion in parallel. Because
-        # git only supports up to 20 jobs in parallel, building in parallel is currently not needed.
-        #dependency: ["nccl", "legion"]
+        python_version: ["3.7", "3.8", "3.9", "3.10"]
         exclude:
           - os: ubuntu-20.04
             cuda_version: "10.1.243"
@@ -48,15 +85,15 @@ jobs:
             gpu_backend: "hip_rocm"
           - cuda_version: "11.0.3"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.2.2"
+          - cuda_version: "11.2.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.3.1"
+          - cuda_version: "11.3.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.4.3"
+          - cuda_version: "11.4.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.5.2"
+          - cuda_version: "11.5.0"
             gpu_backend: "hip_rocm"
-          - cuda_version: "11.6.2"
+          - cuda_version: "11.6.0"
             gpu_backend: "hip_rocm"
           - cuda_version: "11.7.0"
             gpu_backend: "hip_rocm"
@@ -82,11 +119,11 @@ jobs:
         env:
           CUDA_VERSION: ${{ matrix.cuda_version }}
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
+          PY_VERSION: ${{ matrix.python_version }}
         run: .github/workflows/helpers/install_dependencies.sh
 
-      - name: Build NCCL/Legion
+      - name: Build Legion
         env:
-          #DEPENDENCY: ${{ matrix.dependency }}
           CUDA_VERSION: ${{ matrix.cuda_version }}
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
         run: |
@@ -95,9 +132,7 @@ jobs:
           export CUDA_DIR=/usr/local/cuda
 
           export FF_BUILD_LEGION=ON
-          if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export FF_USE_NCCL=ON
-          fi
+          export FF_USE_NCCL=OFF
 
           cores_available=$(nproc --all)
           n_build_cores=$(( cores_available -1 ))
@@ -112,55 +147,43 @@ jobs:
       - name: Prepare library files
         env:
           FF_GPU_BACKEND: ${{ matrix.gpu_backend }}
+          CUDA_VERSION: ${{ matrix.cuda_version }}
         run: |
-          # Remove unnecessary files
-          echo "Removing unnecessary files..."
-          rm -rf build/deps/nccl/obj build/deps/nccl/src build/deps/nccl/tmp
-          rm -f build/export/legion/lib/libflexflow.so
+          export CUDA_VERSION_MAJOR="${CUDA_VERSION:0:4}"
+          echo "CUDA_VERSION_MAJOR=${CUDA_VERSION:0:4}" >> $GITHUB_ENV
 
           if [[ "${FF_GPU_BACKEND}" == "cuda" ]]; then
-            export NCCL_TARBALL="nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
-            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz"
-            
-            # Only build NCCL tarball for CUDA backends
-            echo "Creating archive $NCCL_TARBALL"
-            tar -zcvf $NCCL_TARBALL build/deps/nccl/
-            echo "Checking the size of the NCCL tarball..."
-            du -h $NCCL_TARBALL
+            export LEGION_TARBALL="legion_${{ matrix.os }}_cuda-${CUDA_VERSION_MAJOR}_python${{ matrix.python_version }}.tar.gz"
           else
-            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz"
+            export LEGION_TARBALL="legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}.tar.gz"
           fi
 
           echo "Creating archive $LEGION_TARBALL"
-          tar -zcvf $LEGION_TARBALL build/export/legion/
+          cd build/export
+          tar -zcvf $LEGION_TARBALL legion
           echo "Checking the size of the Legion tarball..."
           du -h $LEGION_TARBALL
+          mv $LEGION_TARBALL ../../
+          cd ../../
 
       - name: Archive compiled Legion library (CUDA)
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend == 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: legion_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          name: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}_python${{ matrix.python_version }}
+          path: legion_${{ matrix.os }}_cuda-${{ env.CUDA_VERSION_MAJOR }}_python${{ matrix.python_version }}.tar.gz
 
       - name: Archive compiled Legion library (HIP)
         uses: actions/upload-artifact@v3
         if: ${{ matrix.gpu_backend != 'cuda' }}
         with:
-          name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}
-          path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}.tar.gz
-
-      - name: Archive compiled NCCL library (CUDA)
-        uses: actions/upload-artifact@v3
-        if: ${{ matrix.gpu_backend == 'cuda' }}
-        with:
-          name: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}
-          path: nccl_${{ matrix.os }}_${{ matrix.cuda_version }}.tar.gz
+          name: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}
+          path: legion_${{ matrix.os }}_${{ matrix.gpu_backend }}_python${{ matrix.python_version }}.tar.gz
 
   notify-slack:
     name: Notify Slack in case of failure
     runs-on: ubuntu-20.04
-    needs: build-dependencies
+    needs: [download-nccl, build-legion]
     if: ${{ failure() && github.event_name == 'schedule' }}
     steps:
       - name: Send Slack message
@@ -172,7 +195,7 @@ jobs:
   create-release:
     name: Create new release
     runs-on: ubuntu-20.04
-    needs: build-dependencies
+    needs: [download-nccl, build-legion]
     steps:
       - name: Checkout Git Repository
         uses: actions/checkout@v3
