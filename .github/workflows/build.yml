@@ -16,7 +16,7 @@ jobs:
     name: Build the FlexFlow dependencies
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: ubuntu-20.04
         cuda_version:
           [
             "10.1.243",
@@ -39,9 +39,6 @@ jobs:
             cuda_version: "10.1.243"
           - os: ubuntu-20.04
             cuda_version: "10.2.89"
-          # Only pre-compile hip_rocm on Ubuntu 20.04 with one single version of CUDA (although CUDA is not necessary)
-          - os: ubuntu-18.04
-            gpu_backend: "hip_rocm"
           - cuda_version: "10.1.243"
             gpu_backend: "hip_rocm"
           - cuda_version: "10.2.89"
